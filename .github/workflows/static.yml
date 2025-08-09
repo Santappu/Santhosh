@@ -17,6 +17,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        
+      - name: Use Personal Token
+        env:
+          personal_token: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+        run: |
+          echo "Your token is: $PERSONAL_TOKEN"
+          # Use the token for API calls or authentication here
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
