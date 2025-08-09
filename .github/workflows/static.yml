@@ -17,13 +17,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
-      - name: Use Personal Token
-        env:
-          personal_token: ${{ secrets.ACTIONS_DEPLOY_KEY }}
-        run: |
-          echo "Your token is: $PERSONAL_TOKEN"
-          # Use the token for API calls or authentication here
+        with:
+          token: ${{ secrets.ACTIONS_DEPLOY_KEY }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -67,7 +62,7 @@ jobs:
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.ACTIONS_DEPLOY_KEY }}
           publish_branch: gh-pages
           publish_dir: ./${{ steps.detect.outputs.folder }}
           force_orphan: true
