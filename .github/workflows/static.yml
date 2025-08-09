@@ -57,8 +57,10 @@ jobs:
             exit 1
           fi
 
-      - name: Deploy to GitHub Pages
+      - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
           publish_dir: ./${{ steps.detect.outputs.folder }}
+          force_orphan: true
