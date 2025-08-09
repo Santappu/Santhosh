@@ -1,6 +1,6 @@
 # Frontend Developer Portfolio
 
-A modern, responsive, and accessible portfolio website built with React, TypeScript, and Redis. This portfolio showcases 12+ years of frontend development experience with a focus on web accessibility and performance.
+A modern, responsive, and accessible portfolio website built with React, TypeScript, and EmailJS. This portfolio showcases 12+ years of frontend development experience with a focus on web accessibility and performance.
 
 ## 🚀 Features
 
@@ -8,8 +8,7 @@ A modern, responsive, and accessible portfolio website built with React, TypeScr
 - **Responsive**: Mobile-first design that works on all devices
 - **Accessible**: WCAG 2.1 AA compliant with proper ARIA labels and keyboard navigation
 - **Performance Optimized**: Fast loading with optimized images and code splitting
-- **Contact Form**: Fully functional contact form with validation and spam prevention
-- **Redis Integration**: Message caching and rate limiting using Redis
+- **Contact Form**: Fully functional contact form using EmailJS
 - **TypeScript**: Type-safe development with excellent IDE support
 - **SEO Friendly**: Proper meta tags and semantic HTML structure
 
@@ -21,14 +20,7 @@ A modern, responsive, and accessible portfolio website built with React, TypeScr
 - **Framer Motion** - Smooth animations and transitions
 - **CSS3** - Modern CSS with Grid, Flexbox, and custom properties
 - **React Intersection Observer** - Scroll-based animations
-
-### Backend
-- **Node.js** - JavaScript runtime for the server
-- **Express** - Web application framework
-- **Redis** - In-memory data store for caching and sessions
-- **Helmet** - Security middleware for Express
-- **Express Rate Limit** - Rate limiting middleware
-- **Express Validator** - Input validation and sanitization
+- **EmailJS** - Email service for contact form integration
 
 ### Development Tools
 - **Create React App** - React development environment
@@ -42,7 +34,6 @@ Before running this project, make sure you have:
 
 - Node.js (version 16 or higher)
 - npm or yarn package manager
-- Redis server (optional, but recommended for full functionality)
 
 ## 🚀 Getting Started
 
@@ -59,76 +50,25 @@ cd frontend-developer-portfolio
 npm install
 ```
 
-### 3. Set up Redis (Optional)
-
-#### Option A: Local Redis Installation
-
-**macOS (using Homebrew):**
-```bash
-brew install redis
-brew services start redis
-```
-
-**Ubuntu/Debian:**
-```bash
-sudo apt update
-sudo apt install redis-server
-sudo systemctl start redis-server
-```
-
-**Windows:**
-Download and install from [Redis Windows releases](https://github.com/microsoftarchive/redis/releases)
-
-#### Option B: Docker Redis
-
-```bash
-docker run -d -p 6379:6379 --name portfolio-redis redis:alpine
-```
-
-#### Option C: Cloud Redis
-
-You can use cloud Redis services like:
-- Redis Cloud
-- AWS ElastiCache
-- Google Cloud Memorystore
-- Azure Cache for Redis
-
-### 4. Environment Configuration
+### 3. Environment Configuration
 
 Create a `.env` file in the root directory:
 
 ```env
-# Redis Configuration (optional)
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=
-
-# Server Configuration
-PORT=3001
-NODE_ENV=development
-
-# Contact Form (for production)
-SMTP_HOST=your-smtp-host
-SMTP_PORT=587
-SMTP_USER=your-email@example.com
-SMTP_PASS=your-password
+# EmailJS Configuration
+EMAILJS_SERVICE_ID=your-service-id
+EMAILJS_TEMPLATE_ID=your-template-id
+EMAILJS_USER_ID=your-user-id
 ```
 
-### 5. Run the development servers
+### 4. Run the development server
 
-#### Start the React development server:
 ```bash
 npm start
 ```
 
-#### Start the backend server (in a new terminal):
-```bash
-npm run server
-```
-
 The application will be available at:
 - Frontend: http://localhost:3000
-- Backend API: http://localhost:3001
 
 ## 🏗️ Building for Production
 
@@ -138,13 +78,7 @@ The application will be available at:
 npm run build
 ```
 
-### 2. Start the production server
-
-```bash
-NODE_ENV=production npm run server
-```
-
-The production server will serve both the API and the built React application.
+The production build will be available in the `build/` directory.
 
 ## 📁 Project Structure
 
@@ -164,8 +98,6 @@ portfolio/
 │   ├── App.tsx           # Main application component
 │   ├── App.css           # Global styles
 │   └── index.tsx         # Application entry point
-├── server/                # Backend server
-│   └── index.js          # Express server with Redis
 ├── package.json          # Dependencies and scripts
 └── README.md            # This file
 ```
@@ -212,18 +144,6 @@ Submit a contact form message.
 }
 ```
 
-### GET /api/health
-Check the health status of the server and Redis connection.
-
-**Response:**
-```json
-{
-  "status": "ok",
-  "timestamp": "2023-10-18T10:30:00.000Z",
-  "redis": "connected"
-}
-```
-
 ## ♿ Accessibility Features
 
 This portfolio is built with accessibility in mind:
@@ -241,16 +161,12 @@ This portfolio is built with accessibility in mind:
 - **Code Splitting**: Automatic code splitting with React.lazy
 - **Image Optimization**: Responsive images with proper sizing
 - **Lazy Loading**: Intersection Observer for scroll-based loading
-- **Caching**: Redis caching for frequently accessed data
 - **Minification**: Production builds are minified and optimized
 - **Gzip Compression**: Server-side compression enabled
 
 ## 🔒 Security Features
 
-- **Input Validation**: Server-side validation for all form inputs
-- **Rate Limiting**: Protection against spam and abuse
-- **CORS Configuration**: Proper cross-origin resource sharing setup
-- **Helmet.js**: Security headers and protections
+- **Input Validation**: Client-side validation for all form inputs
 - **Spam Detection**: Basic spam detection for contact forms
 - **XSS Protection**: Input sanitization and output encoding
 
