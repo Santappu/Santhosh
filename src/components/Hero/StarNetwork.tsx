@@ -279,19 +279,19 @@ const StarNetwork: React.FC = () => {
 
       // Handle shooting stars
       // Randomly create new shooting stars
-      if (shootingStars.length < maxShootingStars && Math.random() < 0.02) {
-        const angle = Math.random() * Math.PI / 4 + Math.PI / 4; // Angle between PI/4 and PI/2
-        shootingStars.push({
-          x: Math.random() * canvas.width,
-          y: 0,
-          length: 50 + Math.random() * 100,
-          speed: 5 + Math.random() * 15,
-          angle: angle,
-          opacity: 0.7 + Math.random() * 0.3,
-          active: true,
-          trail: []
-        });
-      }
+      // if (shootingStars.length < maxShootingStars && Math.random() < 0.02) {
+      //   const angle = Math.random() * Math.PI / 4 + Math.PI / 4; // Angle between PI/4 and PI/2
+      //   shootingStars.push({
+      //     x: Math.random() * canvas.width,
+      //     y: 0,
+      //     length: 50 + Math.random() * 100,
+      //     speed: 5 + Math.random() * 15,
+      //     angle: angle,
+      //     opacity: 0.7 + Math.random() * 0.3,
+      //     active: true,
+      //     trail: []
+      //   });
+      // }
 
       // Update and draw shooting stars
       for (let i = shootingStars.length - 1; i >= 0; i--) {
