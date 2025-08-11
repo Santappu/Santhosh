@@ -56,7 +56,7 @@ const StarNetwork: React.FC = () => {
     
     // Create shooting stars
     const shootingStars: ShootingStar[] = [];
-    const maxShootingStars = 3; // Maximum number of shooting stars at once
+    // const maxShootingStars = 3; // Maximum number of shooting stars at once
 
     // Star colors with more vibrant variations for space theme
     const starColors = [
