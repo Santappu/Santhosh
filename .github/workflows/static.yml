@@ -1,0 +1,68 @@
+name: Auto Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # Change if your default branch is different
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Set homepage for React apps
+        run: |
+          REPO_NAME=$(basename $GITHUB_REPOSITORY)
+          USER_NAME=$(echo $GITHUB_REPOSITORY | cut -d'/' -f1)
+          HOMEPAGE_URL="https://${USER_NAME}.github.io/${REPO_NAME}"
+
+          if grep -q '"react"' package.json; then
+            echo "React project detected — setting homepage to ${HOMEPAGE_URL}"
+            # Remove old homepage line if exists
+            jq "del(.homepage)" package.json > tmp.json && mv tmp.json package.json
+            # Add correct homepage
+            jq ". + {homepage: \"${HOMEPAGE_URL}\"}" package.json > tmp.json && mv tmp.json package.json
+          else
+            echo "Non-React project — skipping homepage change"
+          fi
+
+      - name: Build project
+        run: npm run build
+
+      - name: Detect build folder
+        id: detect
+        run: |
+          if [ -d "build" ]; then
+            echo "folder=build" >> $GITHUB_OUTPUT
+          elif [ -d "dist" ]; then
+            echo "folder=dist" >> $GITHUB_OUTPUT
+          else
+            echo "❌ No build output found!"
+            exit 1
+          fi
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          publish_branch: gh-pages
+          publish_dir: ./build
+          force_orphan: true
