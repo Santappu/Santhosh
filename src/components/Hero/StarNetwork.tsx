@@ -16,6 +16,17 @@ interface Star {
   isFlashing: boolean;
 }
 
+interface ShootingStar {
+  x: number;
+  y: number;
+  length: number;
+  speed: number;
+  angle: number;
+  opacity: number;
+  active: boolean;
+  trail: {x: number, y: number}[];
+}
+
 const StarNetwork: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -38,12 +49,16 @@ const StarNetwork: React.FC = () => {
     // Add resize listener
     window.addEventListener('resize', resizeCanvas);
 
-    // Create stars
+    // Create stars with higher density for space background
     const stars: Star[] = [];
-    const starCount = Math.floor(window.innerWidth * window.innerHeight / 15000); // Adjust density
-    const connectionDistance = 150; // Maximum distance for connection
+    const starCount = Math.floor(window.innerWidth * window.innerHeight / 10000); // Increased density
+    const connectionDistance = 180; // Increased maximum distance for connection
+    
+    // Create shooting stars
+    const shootingStars: ShootingStar[] = [];
+    const maxShootingStars = 3; // Maximum number of shooting stars at once
 
-    // Star colors with slight variations
+    // Star colors with more vibrant variations for space theme
     const starColors = [
       '255, 255, 255', // White
       '240, 248, 255', // Alice Blue
@@ -53,33 +68,76 @@ const StarNetwork: React.FC = () => {
       '255, 240, 245', // Lavender Blush
       '176, 224, 230', // Powder Blue
       '240, 255, 255', // Azure
-      '245, 255, 250'  // Mint Cream
+      '245, 255, 250', // Mint Cream
+      '173, 216, 230', // Light Blue
+      '135, 206, 250', // Light Sky Blue
+      '100, 149, 237', // Cornflower Blue
+      '147, 112, 219', // Medium Purple
+      '138, 43, 226',  // Blue Violet
+      '221, 160, 221', // Plum
+      '255, 215, 0'    // Gold (for special stars)
     ];
+    
+    // Add some nebula-like effects
+    const drawNebula = () => {
+      for (let i = 0; i < 5; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        const radius = 50 + Math.random() * 150;
+        
+        const nebulaGradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+        
+        // Random nebula color
+        const hue = Math.floor(Math.random() * 60) + 220; // Blue to purple range
+        nebulaGradient.addColorStop(0, `hsla(${hue}, 100%, 70%, 0.1)`);
+        nebulaGradient.addColorStop(0.5, `hsla(${hue}, 100%, 50%, 0.05)`);
+        nebulaGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        
+        ctx.fillStyle = nebulaGradient;
+        ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+      }
+    };
+    
+    // Draw nebula effects
+    drawNebula();
     
     for (let i = 0; i < starCount; i++) {
       // Randomly select a color for each star
       const colorIndex = Math.floor(Math.random() * starColors.length);
       
+      // Create more varied star sizes with some larger stars
+      const isBrightStar = Math.random() > 0.97;
+      const radius = isBrightStar ? 
+        Math.random() * 2.5 + 1.5 : // Larger stars
+        Math.random() * 1.5 + 0.5;  // Regular stars
+      
       stars.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        radius: Math.random() * 1.5 + 0.5,
+        radius: radius,
         vx: (Math.random() - 0.5) * 0.3,
         vy: (Math.random() - 0.5) * 0.3,
         connected: false,
         sparkle: Math.random(),
-        sparkleSpeed: 0.01 + Math.random() * 0.03,
+        sparkleSpeed: 0.01 + Math.random() * 0.05, // Increased max sparkle speed
         sparkleDirection: Math.random() > 0.5,
-        color: starColors[colorIndex],
+        color: isBrightStar ? '255, 215, 0' : starColors[colorIndex], // Gold for bright stars
         flashTimer: Math.random() * 200, // Random timer for flashing
-        flashDuration: 5 + Math.random() * 10, // Random flash duration
+        flashDuration: 5 + Math.random() * 15, // Longer flash duration
         isFlashing: false
       });
     }
 
     // Animation function
     const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Create space background gradient instead of clearing
+      const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      bgGradient.addColorStop(0, 'rgba(10, 10, 30, 1)');
+      bgGradient.addColorStop(0.5, 'rgba(20, 10, 40, 1)');
+      bgGradient.addColorStop(1, 'rgba(30, 10, 60, 1)');
+      
+      ctx.fillStyle = bgGradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
       
       // Reset connected status
       stars.forEach(star => {
@@ -120,19 +178,20 @@ const StarNetwork: React.FC = () => {
 
       // Draw stars
       stars.forEach(star => {
-        // Random flash effect
+        // Enhanced random flash effect
         star.flashTimer -= 1;
         if (star.flashTimer <= 0 && !star.isFlashing) {
           // Start a flash
           star.isFlashing = true;
-          star.flashDuration = 5 + Math.random() * 10;
+          star.flashDuration = 5 + Math.random() * 15; // Longer flash duration
         }
         
         if (star.isFlashing) {
           star.flashDuration -= 1;
           if (star.flashDuration <= 0) {
             star.isFlashing = false;
-            star.flashTimer = 100 + Math.random() * 300; // Reset timer for next flash
+            // More frequent flashing for a more dynamic space background
+            star.flashTimer = 50 + Math.random() * 200; // Reduced timer for next flash
           }
         }
         
@@ -170,24 +229,39 @@ const StarNetwork: React.FC = () => {
         
         ctx.fill();
         
-        // Add glow effect for brighter stars
+        // Enhanced glow effect for brighter stars
         if (star.sparkle > 0.7) {
+          // Larger outer glow
           ctx.beginPath();
-          ctx.arc(star.x, star.y, twinkleRadius * 2, 0, Math.PI * 2);
+          ctx.arc(star.x, star.y, twinkleRadius * 3, 0, Math.PI * 2);
           ctx.fillStyle = `rgba(${star.color}, ${star.sparkle * 0.1})`;
           ctx.fill();
           
+          // Medium glow
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, twinkleRadius * 2, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${star.color}, ${star.sparkle * 0.2})`;
+          ctx.fill();
+          
           // Add extra sparkle for very bright stars
-          if (star.sparkle > 0.9) {
-            const sparkSize = star.radius * 0.5;
-            const sparkleOpacity = (star.sparkle - 0.9) * 10; // 0 to 1 range
+          if (star.sparkle > 0.85) {
+            const sparkSize = star.radius * 0.8;
+            const sparkleOpacity = (star.sparkle - 0.85) * 6.67; // 0 to 1 range
             
-            // Draw sparkle cross
+            // Draw sparkle cross with more rays
             ctx.beginPath();
-            ctx.moveTo(star.x - sparkSize * 2, star.y);
-            ctx.lineTo(star.x + sparkSize * 2, star.y);
-            ctx.moveTo(star.x, star.y - sparkSize * 2);
-            ctx.lineTo(star.x, star.y + sparkSize * 2);
+            // Horizontal ray
+            ctx.moveTo(star.x - sparkSize * 3, star.y);
+            ctx.lineTo(star.x + sparkSize * 3, star.y);
+            // Vertical ray
+            ctx.moveTo(star.x, star.y - sparkSize * 3);
+            ctx.lineTo(star.x, star.y + sparkSize * 3);
+            // Diagonal rays
+            ctx.moveTo(star.x - sparkSize * 2, star.y - sparkSize * 2);
+            ctx.lineTo(star.x + sparkSize * 2, star.y + sparkSize * 2);
+            ctx.moveTo(star.x - sparkSize * 2, star.y + sparkSize * 2);
+            ctx.lineTo(star.x + sparkSize * 2, star.y - sparkSize * 2);
+            
             ctx.strokeStyle = `rgba(${star.color}, ${sparkleOpacity})`;
             ctx.lineWidth = sparkSize * 0.5;
             ctx.stroke();
@@ -203,6 +277,68 @@ const StarNetwork: React.FC = () => {
         if (star.y < 0 || star.y > canvas.height) star.vy = -star.vy;
       });
 
+      // Handle shooting stars
+      // Randomly create new shooting stars
+      if (shootingStars.length < maxShootingStars && Math.random() < 0.02) {
+        const angle = Math.random() * Math.PI / 4 + Math.PI / 4; // Angle between PI/4 and PI/2
+        shootingStars.push({
+          x: Math.random() * canvas.width,
+          y: 0,
+          length: 50 + Math.random() * 100,
+          speed: 5 + Math.random() * 15,
+          angle: angle,
+          opacity: 0.7 + Math.random() * 0.3,
+          active: true,
+          trail: []
+        });
+      }
+
+      // Update and draw shooting stars
+      for (let i = shootingStars.length - 1; i >= 0; i--) {
+        const star = shootingStars[i];
+        
+        // Update position
+        star.x += Math.cos(star.angle) * star.speed;
+        star.y += Math.sin(star.angle) * star.speed;
+        
+        // Add current position to trail
+        star.trail.push({x: star.x, y: star.y});
+        
+        // Limit trail length
+        if (star.trail.length > 20) {
+          star.trail.shift();
+        }
+        
+        // Draw shooting star trail
+        if (star.trail.length > 1) {
+          ctx.beginPath();
+          ctx.moveTo(star.trail[0].x, star.trail[0].y);
+          
+          for (let j = 1; j < star.trail.length; j++) {
+            ctx.lineTo(star.trail[j].x, star.trail[j].y);
+          }
+          
+          // Create gradient for trail
+          const gradient = ctx.createLinearGradient(
+            star.trail[0].x, star.trail[0].y,
+            star.trail[star.trail.length-1].x, star.trail[star.trail.length-1].y
+          );
+          
+          gradient.addColorStop(0, `rgba(255, 255, 255, 0)`);
+          gradient.addColorStop(0.4, `rgba(255, 255, 255, ${star.opacity * 0.5})`);
+          gradient.addColorStop(1, `rgba(255, 255, 255, ${star.opacity})`);
+          
+          ctx.strokeStyle = gradient;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+        
+        // Remove if out of bounds
+        if (star.x < 0 || star.x > canvas.width || star.y > canvas.height) {
+          shootingStars.splice(i, 1);
+        }
+      }
+      
       requestAnimationFrame(animate);
     };
 

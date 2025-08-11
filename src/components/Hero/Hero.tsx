@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import './Hero.css';
+import StarNetwork from './StarNetwork';
 
 const Hero: React.FC = () => {
   const codeSnippets = [
@@ -53,6 +54,7 @@ const me: Developer = {
 
   return (
     <section id="hero" className="hero" role="banner">
+      <StarNetwork />
       <div className="container">
         <div className="hero-content">
           {/* Left side - Portrait */}
